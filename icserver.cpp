@@ -2,6 +2,7 @@
 
 #include <QTimer>
 #include <QThreadPool>
+
 #include "icmessagehandler.h"
 #include "icmessage.h"
 #include "icquestion.h"
@@ -10,61 +11,61 @@
 #include "icmessageprocessor.h"
 
 ICServer::ICServer(QObject *parent) :
-    QObject(parent), settings(CONFIG_FILE, QSettings::IniFormat)
+    QObject(parent), settings(new QSettings(CONFIG_FILE, QSettings::IniFormat, this))
 {
-    udpSocket = new QUdpSocket(this);
-    timer = new QTimer(this);
-    handler = new ICMessageHandler(this);
 
     //connect(udpSocket,SIGNAL(connected()),this, SLOT(socketConnected()));
     // no effect currently
     //connect(udpSocket,SIGNAL(disconnected()),this, SLOT(socketClosed()));
-    connect(udpSocket, SIGNAL(readyRead()), this, SLOT(processPendingDatagrams()));
 
-    connect(timer, SIGNAL(timeout()), this, SLOT(endTest()));
-
-    connect(handler, SIGNAL(serverDiscovery(QHostAddress,QString)), this, SLOT(processDiscovery(QHostAddress,QString)));
-    connect(handler, SIGNAL(questionRequest(QHostAddress)), this, SLOT(processRequest(QHostAddress)));
-    connect(handler, SIGNAL(answerReady(ICAnswer,QString)), this, SLOT(processAnswer(ICAnswer,QString)));
+    isRunning = false;
 }
 
-void ICServer::setIdentifier(QString identifier) { sid = identifier; }
-
-bool ICServer::startTest(int duration)
+void ICServer::setUp(QString identifier, QHostAddress address)
 {
-    connect(handler, SIGNAL(connectionOffer(QString)), this, SLOT(processOffer(QString)));
+    sid = identifier;
+    ipAddress = address;
+}
+
+QString ICServer::getIdentifier() const { return sid; }
+
+bool ICServer::startSidTest(int duration)
+{
+    timer = new QTimer(this);
+
+    connect(timer, SIGNAL(timeout()), this, SLOT(stopSidTest()));
 
     timer->setInterval(duration);
     timer->setSingleShot(true);
 
     testUdpSocket = new QUdpSocket(this);
-    bool success = testUdpSocket->bind(CLIENT_PORT);
-    if (!success) {
-        delete testUdpSocket;
-        return false;
-    }
+
+    bool success = testUdpSocket->bind(ipAddress, CLIENT_PORT);
+    // if bind failed
+    if (!success) return false;
+
+    connect(testUdpSocket, SIGNAL(readyRead()), this, SLOT(processPendingDatagrams()));
 
     ICMessage question = ICMessage::initWithCommonProperties();
-    question.setProperty(settings.value(SID_CONFIG_TAG,DEFAULT_SID_TAG).toString(),sid);
-    question.setProperty(settings.value(COMMAND_CONFIG_TAG,DEFAULT_CMD_TAG).toString(), QString::number(SERVER_DISCOVERY));
+    question.setProperty(settings->value(SID_CONFIG_TAG,DEFAULT_SID_TAG).toString(),sid);
+    question.setProperty(settings->value(COMMAND_CONFIG_TAG,DEFAULT_CMD_TAG).toString(), QString::number(SERVER_DISCOVERY));
+
     // broadcast for three times
     for (int i = 0; i < 3; i++)
         testUdpSocket->writeDatagram(question.saveAsJson(), QHostAddress::Broadcast, SERVER_PORT);
-
-    connect(testUdpSocket, SIGNAL(readyRead()), this, SLOT(processPendingDatagrams()));
 
     timer->start();
     return true;
 }
 
-void ICServer::endTest()
+void ICServer::stopSidTest()
 {
-    disconnect(handler, SIGNAL(connectionOffer(QString)), this, SLOT(processOffer(QString)));
-    disconnect(testUdpSocket, SIGNAL(readyRead()), this, SLOT(processPendingDatagrams()));
-
-    testUdpSocket->close();
+    if (testUdpSocket != 0) {
+        testUdpSocket->close();
+    }
 }
 
+// not in use
 void ICServer::socketClosed(QAbstractSocket::SocketState state)
 {
     if (state == QAbstractSocket::ClosingState)
@@ -74,26 +75,48 @@ void ICServer::socketClosed(QAbstractSocket::SocketState state)
 // listen on port 8027, broadcast question to 8026
 bool ICServer::listen()
 {
-    return udpSocket->bind(SERVER_PORT);
+    udpSocket = new QUdpSocket(this);
+
+    if (udpSocket->bind(ipAddress, SERVER_PORT)) {
+        connect(udpSocket, SIGNAL(readyRead()), this, SLOT(processPendingDatagrams()));
+        isRunning = true;
+        return true;
+    } else return false;
 }
 
 // stop the server
 void ICServer::stop()
 {
-    udpSocket->close();
+    if (udpSocket != 0) {
+        udpSocket->close();
+        isRunning = false;
+    }
 }
 
 void ICServer::processPendingDatagrams()
 {
     QByteArray datagram;
+    QUdpSocket *socket = isRunning ? udpSocket : testUdpSocket;
+
     do {
-        datagram.resize(udpSocket->pendingDatagramSize());
-        udpSocket->readDatagram(datagram.data(), datagram.size());
+        QHostAddress *address = new QHostAddress;
+        datagram.resize(socket->pendingDatagramSize());
+        socket->readDatagram(datagram.data(), datagram.size(), address);
 
-        ICMessageProcessor processor(handler, datagram);
-        QThreadPool::globalInstance()->start(&processor);
+        ICMessageHandler *messageHandler = new ICMessageHandler(this);
+        connect(messageHandler, SIGNAL(connectionOffer(QString)), this, SLOT(processSidCollision(QString)));
+        connect(messageHandler, SIGNAL(serverDiscovery(QHostAddress,QString)), this, SLOT(processDiscovery(QHostAddress,QString)));
+        connect(messageHandler, SIGNAL(questionRequest(QHostAddress)), this, SLOT(processRequest(QHostAddress)));
+        connect(messageHandler, SIGNAL(answerReady(ICAnswer,QString)), this, SLOT(processAnswer(ICAnswer,QString)));
 
-    } while (udpSocket->hasPendingDatagrams());
+        ICMessageProcessor *processor = new ICMessageProcessor(messageHandler, *address, datagram);
+
+        QThreadPool::globalInstance()->start(processor);
+
+        qDebug()<< "[1] Received from " << *address << datagram;
+
+        delete address;
+    } while (socket->hasPendingDatagrams());
 }
 
 void ICServer::broadcastQuestion()
@@ -101,8 +124,11 @@ void ICServer::broadcastQuestion()
     ICQuestion currentQuestion = ICSystemStore::getInstance()->getCurrentQuestion();
     if (!currentQuestion.isNull()) {
         ICMessage question = ICMessage::initWithCommonProperties();
-        question.setProperty(settings.value(SID_CONFIG_TAG,DEFAULT_SID_TAG).toString(),sid);
-        question.setProperty(settings.value(COMMAND_CONFIG_TAG,DEFAULT_CMD_TAG).toString(), QString::number(QUESTION_DELIVER));
+        question.setProperty(settings->value(SID_CONFIG_TAG,DEFAULT_SID_TAG).toString(),sid);
+        question.setProperty(settings->value(COMMAND_CONFIG_TAG,DEFAULT_CMD_TAG).toString(), QString::number(QUESTION_DELIVER));
+        QList<ICQuestion> questions;
+        questions.append(currentQuestion);
+        question.setQuestions(questions);
 
         udpSocket->writeDatagram(question.saveAsJson(), QHostAddress::Broadcast, CLIENT_PORT);
     }
@@ -113,29 +139,31 @@ void ICServer::broadcastQuestion()
 void ICServer::processRequest(QHostAddress clientAddress)
 {
     ICQuestion currentQuestion = ICSystemStore::getInstance()->getCurrentQuestion();
+    ICMessage reply = ICMessage::initWithCommonProperties();
     if (currentQuestion.isNull()) {
-        ICMessage not_questioning = ICMessage::initWithCommonProperties();
-        not_questioning.setProperty(settings.value(SID_CONFIG_TAG,DEFAULT_SID_TAG).toString(),sid);
-        not_questioning.setProperty(settings.value(COMMAND_CONFIG_TAG,DEFAULT_CMD_TAG).toString(), QString::number(NOT_QUESTIONING));
-
-        udpSocket->writeDatagram(not_questioning.saveAsJson(), clientAddress, CLIENT_PORT);
+        reply.setProperty(settings->value(SID_CONFIG_TAG,DEFAULT_SID_TAG).toString(),sid);
+        reply.setProperty(settings->value(COMMAND_CONFIG_TAG,DEFAULT_CMD_TAG).toString(), QString::number(NOT_QUESTIONING));
     }
     else {
-        ICMessage qusetionDeliver = ICMessage::initWithCommonProperties();
-        qusetionDeliver.setProperty(settings.value(SID_CONFIG_TAG,DEFAULT_SID_TAG).toString(),sid);
-        qusetionDeliver.setProperty(settings.value(COMMAND_CONFIG_TAG,DEFAULT_CMD_TAG).toString(), QString::number(QUESTION_DELIVER));
+        reply.setProperty(settings->value(SID_CONFIG_TAG,DEFAULT_SID_TAG).toString(),sid);
+        reply.setProperty(settings->value(COMMAND_CONFIG_TAG,DEFAULT_CMD_TAG).toString(), QString::number(QUESTION_DELIVER));
         QList<ICQuestion> questions;
         questions.append(currentQuestion);
-        qusetionDeliver.setQuestions(questions);
-
-        udpSocket->writeDatagram(qusetionDeliver.saveAsJson(), clientAddress, CLIENT_PORT);
+        reply.setQuestions(questions);
     }
+
+    udpSocket->writeDatagram(reply.saveAsJson(), clientAddress, CLIENT_PORT);
+
+    qDebug() << "[2] Send to " << clientAddress << reply.saveAsJson() << " in thread " << QThread::currentThread();
 }
 
 // a connection offer with identifier comes
-void ICServer::processOffer(QString identifier)
+void ICServer::processSidCollision(QString identifier)
 {
-    if (sid.compare(identifier) == 0) emit identifierCollision(sid);
+    if (sid.compare(identifier) == 0)
+    {
+        emit identifierCollision(sid);
+    }
 }
 
 // a server discovery with specified identifier comes
@@ -143,10 +171,12 @@ void ICServer::processDiscovery(QHostAddress clientAddress, QString identifier)
 {
     if (sid.compare(identifier) == 0) {
         ICMessage connectionOffer = ICMessage::initWithCommonProperties();
-        connectionOffer.setProperty(settings.value(SID_CONFIG_TAG,DEFAULT_SID_TAG).toString(),sid);
-        connectionOffer.setProperty(settings.value(COMMAND_CONFIG_TAG,DEFAULT_CMD_TAG).toString(), QString::number(CONNECTION_OFFER));
+        connectionOffer.setProperty(settings->value(SID_CONFIG_TAG,DEFAULT_SID_TAG).toString(),sid);
+        connectionOffer.setProperty(settings->value(COMMAND_CONFIG_TAG,DEFAULT_CMD_TAG).toString(), QString::number(CONNECTION_OFFER));
 
         udpSocket->writeDatagram(connectionOffer.saveAsJson(), clientAddress, CLIENT_PORT);
+
+        qDebug() << "[3] Send to " << clientAddress << connectionOffer.saveAsJson() << " in thread " << QThread::currentThread();
     }
 }
 
@@ -159,5 +189,7 @@ void ICServer::processAnswer(ICAnswer answer, QString uid)
         answer.setUid(uid);
         store->addAnswer(answer);
         emit newAnswerArrived(uid);
+
+        qDebug() << "[4] Answer from " << uid << "processed" << " in thread " << QThread::currentThread();
     }
 }

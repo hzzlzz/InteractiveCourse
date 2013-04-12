@@ -15,6 +15,7 @@ class ICMainWindow : public QMainWindow, public Ui::ICMainWindow
     Q_OBJECT
 public:
     explicit ICMainWindow(ICServer *theServer, QWidget *parent = 0);
+
     ~ICMainWindow();
 
 private slots:
@@ -27,10 +28,17 @@ private slots:
 
     void connectionClosed();
 
+    QRegion getRegion() const;
+    void updateMask();
+
+private:
+
+    void paintEvent(QPaintEvent* event);
+
     void mousePressEvent(QMouseEvent *e);
     void mouseMoveEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
-private:
+
     ICServer *server;
     ICNewQuestionDialog *questionDialog;
 

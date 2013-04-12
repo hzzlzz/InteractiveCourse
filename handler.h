@@ -9,8 +9,8 @@ class Handler : public QObject
 public:
     explicit Handler(QObject *parent = 0);
 
-    virtual void reset(QList<QVariant> paramList) = 0;
-    void handle(QString suffix, QList<QVariant> valueList);
+    virtual void reset(const QList<QVariant>& paramList) = 0;
+    void handle(const QString suffix, const QList<QVariant>& valueList);
     virtual void done() = 0;
 };
 

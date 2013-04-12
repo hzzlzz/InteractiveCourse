@@ -6,48 +6,105 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>347</width>
-    <height>193</height>
+    <width>351</width>
+    <height>156</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>新课堂</string>
+   <string>Start Up</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
-    <spacer name="verticalSpacer">
+    <widget class="QLabel" name="label_2">
+     <property name="font">
+      <font>
+       <pointsize>14</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Server Startup</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer_3">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>20</height>
+       <height>10</height>
       </size>
      </property>
     </spacer>
    </item>
    <item>
-    <widget class="QLabel" name="sidLabel">
-     <property name="font">
-      <font>
-       <family>宋体</family>
-       <pointsize>16</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>&amp;服务器名称</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-     <property name="buddy">
-      <cstring>sidLineEdit</cstring>
-     </property>
-    </widget>
-   </item>
-   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QLabel" name="ipLabel">
+         <property name="text">
+          <string>&amp;Network Adapter:</string>
+         </property>
+         <property name="buddy">
+          <cstring>ipComboBox</cstring>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="sidLabel">
+         <property name="text">
+          <string>&amp;Server Name:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+         <property name="buddy">
+          <cstring>sidLineEdit</cstring>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QComboBox" name="ipComboBox">
+         <property name="minimumContentsLength">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="sidLineEdit">
+         <property name="maxLength">
+          <number>20</number>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
      <item>
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
@@ -61,56 +118,28 @@
        </property>
       </spacer>
      </item>
-     <item>
-      <widget class="QLineEdit" name="sidLineEdit">
-       <property name="font">
-        <font>
-         <pointsize>14</pointsize>
-        </font>
-       </property>
-       <property name="maxLength">
-        <number>20</number>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_3">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
     </layout>
    </item>
    <item>
-    <spacer name="verticalSpacer_2">
+    <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>40</height>
+       <height>10</height>
       </size>
      </property>
     </spacer>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,0">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0">
      <item>
       <widget class="QLabel" name="statusLabel">
        <property name="minimumSize">
         <size>
-         <width>50</width>
+         <width>150</width>
          <height>0</height>
         </size>
        </property>
@@ -120,30 +149,37 @@
       </widget>
      </item>
      <item>
-      <widget class="QDialogButtonBox" name="buttonBox">
-       <property name="minimumSize">
-        <size>
-         <width>50</width>
-         <height>0</height>
-        </size>
+      <widget class="QPushButton" name="okButton">
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
        </property>
-       <property name="locale">
-        <locale language="English" country="UnitedStates"/>
+       <property name="text">
+        <string>Start</string>
        </property>
-       <property name="standardButtons">
-        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+       <property name="default">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cancelButton">
+       <property name="text">
+        <string>Cancel</string>
        </property>
       </widget>
      </item>
     </layout>
    </item>
   </layout>
-  <zorder>verticalSpacer</zorder>
-  <zorder>sidLabel</zorder>
-  <zorder>verticalSpacer_2</zorder>
-  <zorder>buttonBox</zorder>
-  <zorder>statusLabel</zorder>
  </widget>
+ <tabstops>
+  <tabstop>ipComboBox</tabstop>
+  <tabstop>sidLineEdit</tabstop>
+  <tabstop>okButton</tabstop>
+  <tabstop>cancelButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

@@ -52,4 +52,15 @@ const int UNDERSTAND = 4;
 
 const int SERVER_SID_TEST_DURATION = 1000;
 
+const int WINDOW_WIDTH = 600;
+
+const int BAR_WIDTH = 50;
+const int MARGIN_RATIO = 5;
+const int SPACING_RATIO = 2;
+
+const int MIN_MARGIN = 50;
+const int MIN_SPACING = 20;
+
+const QString CHINESE_CN = "interactivecourse_cn";
+
 #endif // ICCONFIG_H

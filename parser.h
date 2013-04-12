@@ -12,7 +12,7 @@ class Parser
 {
 public:
     Parser(Handler *theHandler);
-    void parse(Source* source, QList<QVariant> paramList = QList<QVariant>());
+    void parse(Source* source, const QList<QVariant> paramList = QList<QVariant>());
 protected:
     void addMapper(Mapper mapper);
 private:

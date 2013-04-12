@@ -30,7 +30,8 @@ SOURCES += main.cpp\
     icresultwindow.cpp \
     icstartdialog.cpp \
     icmainwindow.cpp \
-    icnewquestiondialog.cpp
+    icnewquestiondialog.cpp \
+    icansweranalyzer.cpp
 
 HEADERS  += \
     mapper.h \
@@ -51,9 +52,17 @@ HEADERS  += \
     icresultwindow.h \
     icstartdialog.h \
     icmainwindow.h \
-    icnewquestiondialog.h
+    icnewquestiondialog.h \
+    icansweranalyzer.h
 
 FORMS    += \
     icstartdialog.ui \
     icmainwindow.ui \
     icnewquestiondialog.ui
+
+TRANSLATIONS = interactivecourse_cn.ts
+
+RESOURCES += \
+    resource.qrc
+
+RC_FILE = interactivecourse.rc

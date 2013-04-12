@@ -1,6 +1,7 @@
 #include "icmessagehandler.h"
 
 #include <QVariant>
+#include <QThread>
 #include <QMetaType>
 #include "icconfig.h"
 
@@ -11,7 +12,7 @@ ICMessageHandler::ICMessageHandler(QObject *parent) :
 {
 }
 
-void ICMessageHandler::reset(QList<QVariant> paramList)
+void ICMessageHandler::reset(const QList<QVariant>& paramList)
 {
     appPass = false;
     versionPass = false;
@@ -19,7 +20,12 @@ void ICMessageHandler::reset(QList<QVariant> paramList)
     uid = QString();
     cmd = QString();
     answers = QList<ICAnswer>();
-    clientAddress = QHostAddress();
+
+    QVariant v = paramList.value(0);
+    if (v.canConvert<QHostAddress>())
+        clientAddress = v.value<QHostAddress>();
+
+    qDebug() << "[101] Reset in thread " << QThread::currentThread();
 }
 
 void ICMessageHandler::done()
@@ -34,7 +40,9 @@ void ICMessageHandler::done()
     // connection offer comes
     case CONNECTION_OFFER:
         if (sid.isNull()) qDebug() << "Protocol Error: no sid in cmd " << cmd;
-        else emit connectionOffer(sid);
+        else {
+            emit connectionOffer(sid);
+        }
         break;
     // server discovery comes
     case SERVER_DISCOVERY:
@@ -53,7 +61,7 @@ void ICMessageHandler::done()
     case ANSWER:
         if (uid.isNull()) qDebug() << "Protocol Error: no uid found in cmd " << cmd;
         else {
-            if (answers.isEmpty()) qDebug() << "Protocol Error: no answers found in cmd " << cmd;
+            if (answers.isEmpty()) qDebug() << "[106] Protocol Error: no answers found in cmd " << cmd;
             else {
                 foreach (const ICAnswer& answer, answers) {
                     emit answerReady(answer, uid);
@@ -65,13 +73,15 @@ void ICMessageHandler::done()
         qDebug() << "Protocol Error: incorrect cmd " << cmd;
         break;
     }
+
+    qDebug() << "[102] Done in thread " << QThread::currentThread();
 }
 
 void ICMessageHandler::handle_app(QVariant app_v)
 {
     if (app_v.canConvert<QString>()) {
         QString app = app_v.toString();
-        if (app.compare(settings.value(APP_CONFIG_VALUE, DEFAULT_APP_VALUE).toString())) {
+        if (app.compare(settings.value(APP_CONFIG_VALUE, DEFAULT_APP_VALUE).toString()) == 0) {
             appPass = true;
         } else qDebug() << "Protocol Error: incorrect app name " << app;
     } else qDebug() << "Application Error: app cannot convert to a qstring";
@@ -81,7 +91,7 @@ void ICMessageHandler::handle_version(QVariant version_v)
 {
     if (version_v.canConvert<QString>()) {
         QString version = version_v.toString();
-        if (version.compare(settings.value(VERSION_CONFIG_VALUE,DEFAULT_VERSION_VALUE).toString())) {
+        if (version.compare(settings.value(VERSION_CONFIG_VALUE,DEFAULT_VERSION_VALUE).toString()) == 0) {
             versionPass = true;
         } else qDebug() << "Protocol Error: incompatible version " << version;
     } else qDebug() << "Application Error: version cannot convert to a qstring";

@@ -11,8 +11,7 @@ class ICStartDialog : public QDialog, public Ui::ICStartDialog
 {
     Q_OBJECT
 public:
-    explicit ICStartDialog(ICServer *server, QWidget *parent = 0);
-    ~ICStartDialog();
+    explicit ICStartDialog(QWidget *parent = 0);
 signals:
     
 public slots:
@@ -20,12 +19,16 @@ public slots:
 private slots:
     void on_sidLineEdit_textChanged();
 
-    void test_sid();
+    void testSid();
     void sid_passed();
     void collision();
+
 private:
+    bool ifCollision;
+    bool isRunning;
     ICServer *server;
     QTimer timer;
+    QList<QHostAddress> addresses;
 };
 
 #endif // ICSTARTDIALOG_H

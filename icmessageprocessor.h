@@ -6,24 +6,21 @@
 #include <QByteArray>
 
 #include "icmessage.h"
-#include "icmessageparser.h"
 
 class ICMessageHandler;
+class ICMessageParser;
 
-class ICMessageProcessor : public QObject, public QRunnable
+class ICMessageProcessor : public QRunnable
 {
-    Q_OBJECT
 public:
-    explicit ICMessageProcessor(ICMessageHandler *handler, QByteArray datagram, QObject *parent = 0);
-    
+    explicit ICMessageProcessor(ICMessageHandler *handler, const QHostAddress& address, QByteArray datagram);
     void run();
-signals:
-    
-public slots:
-    
+
+    ~ICMessageProcessor();
 private:
     ICMessageHandler *handler;
-    ICMessageParser parser;
+    ICMessageParser *parser;
+    QHostAddress clientAddress;
     ICMessage message;
 };
 

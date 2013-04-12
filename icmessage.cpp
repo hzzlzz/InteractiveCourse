@@ -100,12 +100,12 @@ QByteArray ICMessage::saveAsJson() const
 ICMessage ICMessage::readJsonFrom(QByteArray datagram)
 {
     QJsonDocument jd = QJsonDocument::fromJson(datagram);
-    qDebug() << jd.isNull();
+    if(jd.isNull()) qDebug() << "incoming json is null";
     QJsonObject jo = jd.object();
 
     ICMessage message;
-    QJsonObject::const_iterator i = jo.begin();
-    while (i != jo.end()) {
+    QJsonObject::const_iterator i = jo.constBegin();
+    while (i != jo.constEnd()) {
         QString key = i.key();
         QJsonValue value = i.value();
         if (value.isString()) {
@@ -135,6 +135,7 @@ ICMessage ICMessage::readJsonFrom(QByteArray datagram)
                 message.setAnswers(answers);
             }
         }
+        ++i;
     }
     return message;
 }

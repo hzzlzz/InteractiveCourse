@@ -11,6 +11,8 @@ ICResultWindow::ICResultWindow(ICResultChart *chart, QWidget *parent) :
 {
     setCentralWidget(d_chart);
 
+    setWindowIcon(QIcon(":/images/icimage.png"));
+
     QToolBar *toolBar = new QToolBar(this);
 
     orientationBox = new QComboBox(toolBar);

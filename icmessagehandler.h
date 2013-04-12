@@ -16,7 +16,7 @@ class ICMessageHandler : public Handler
 public:
     ICMessageHandler(QObject *parent = 0);
 
-    void reset(QList<QVariant> paramList);
+    void reset(const QList<QVariant>& paramList);
     void done();
     
 signals:

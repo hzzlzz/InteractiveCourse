@@ -2,12 +2,14 @@
 
 #include <QMouseEvent>
 #include <QMessageBox>
+#include <QBitmap>
 
 #include "icsystemstore.h"
 #include "icquestion.h"
 #include "icserver.h"
 #include "icresultwindow.h"
 #include "icresultchart.h"
+#include "icansweranalyzer.h"
 
 #include "icconfig.h"
 
@@ -17,12 +19,12 @@ ICMainWindow::ICMainWindow(ICServer *theServer, QWidget *parent) :
 {
     setupUi(this);
 
-    //setAttribute(Qt::WA_TranslucentBackground);
-    //setStyleSheet("background:transparent;");
+    setWindowIcon(QIcon(":/images/icimage.png"));
+
+    //this->setAttribute(Qt::WA_TranslucentBackground, true);
     setWindowFlags(Qt::FramelessWindowHint);
-    //setStyleSheet("background:transparent;");
     //questionDialog->setWindowOpacity(0.8);
-    //questionDialog->setWindowFlags(Qt::FramelessWindowHint);
+    questionDialog->setWindowFlags(questionDialog->windowFlags() | Qt::FramelessWindowHint);
 
     connect(exitButton, SIGNAL(clicked()), this, SLOT(close()));
     connect(understandButton, SIGNAL(clicked()), this, SLOT(understand()));
@@ -34,7 +36,41 @@ ICMainWindow::ICMainWindow(ICServer *theServer, QWidget *parent) :
 
     connect(questionDialog, SIGNAL(newQuestion(int,int)), this, SLOT(newQuestionReady(int,int)));
 
+    sidLabel->setText(server->getIdentifier());
     countLabel->setText("0/0");
+}
+
+QRegion ICMainWindow::getRegion() const
+{
+        QPainterPath path;
+        path.addRoundedRect(rect().adjusted(1, -1, -1, 0), 6, 6);
+        return QRegion(path.toFillPolygon().toPolygon());
+}
+
+void ICMainWindow::updateMask()
+{
+    QBitmap Bitmap(size());
+    Bitmap.clear();
+    QPainter Painter(&Bitmap);
+
+    Painter.setClipRegion(getRegion());
+    Painter.fillRect(rect(), Qt::color1);
+    Painter.end();
+
+    setMask(Bitmap);
+}
+
+void ICMainWindow::paintEvent(QPaintEvent* event)
+{
+    Q_UNUSED(event);
+
+    updateMask();
+
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setPen(QPen(QBrush(QColor(51, 153, 255)), 2.0));
+    painter.setBrush(QBrush(QColor(252, 252, 252)));
+    painter.drawRoundedRect(rect().adjusted(2,1,-2,-1), 5, 5);
 }
 
 void ICMainWindow::understand()
@@ -45,7 +81,7 @@ void ICMainWindow::understand()
     ICSystemStore *store = ICSystemStore::getInstance();
 
     ICQuestion& us_question = store->createQuestion();
-    us_question.setType(QString(UNDERSTAND));
+    us_question.setType(QString::number(UNDERSTAND));
     store->setCurrentQuestion(us_question);
     uids.clear();
 
@@ -67,33 +103,24 @@ void ICMainWindow::stop()
     stopButton->setEnabled(false);
 
     ICSystemStore *store = ICSystemStore::getInstance();
-    QString id = store->getCurrentQuestion().getId();
+    ICQuestion currentQuestion = store->getCurrentQuestion();
+    QString id = currentQuestion.getId();
     QList<ICAnswer> answers = store->getAnswers(id);
 
-    QMap<QString, int> result;
-    QSet<QString> answeredUid;
+    ICAnswerAnalyzer analyzer(currentQuestion);
+    QMap<QString, int> result = analyzer.analyze(answers);
 
-    QListIterator<ICAnswer> i(answers);
-    i.toBack();
-    while (i.hasPrevious()) {
-        const ICAnswer& answer = i.previous();
-        QString uid = answer.getUid();
-        if (!answeredUid.contains(uid)) {
-            answeredUid.insert(uid);
-            QString text = answer.getAnswer();
-            int count = result.value(text, 0);
-            result.insert(text, ++count);
-        }
-    }
     ICResultChart *resultChart = new ICResultChart(this);
-    resultChart->setTitle(QString(tr("Result of question %1")).arg(id));
+    resultChart->setTitle(QString(tr("Result of Question %1")).arg(id));
     resultChart->setResult(result);
     resultChart->populate();
+
     ICResultWindow *resultWindow = new ICResultWindow(resultChart, this);
-    resultWindow->resize(600, 400);
+    resultWindow->resize(800, 600);
     resultWindow->show();
 
-    store->setCurrentQuestion(ICQuestion());
+    ICQuestion question;
+    store->setCurrentQuestion(question);
 
     understandButton->setEnabled(true);
     questionButton->setEnabled(true);
@@ -113,14 +140,14 @@ void ICMainWindow::newQuestionReady(int type, int choices)
     ICSystemStore *store = ICSystemStore::getInstance();
 
     ICQuestion& question = store->createQuestion();
-    question.setType(QString(type));
-    if (type != TOF) question.setChoices(QString(choices));
+    question.setType(QString::number(type));
+    if (type != TOF) question.setChoices(QString::number(choices));
     store->setCurrentQuestion(question);
     uids.clear();
 
     server->broadcastQuestion();
 
-    countLabel->setText(question.getId() + "/" + uids.size());
+    countLabel->setText(question.getId() + "/" + QString::number(uids.size()));
 
     stopButton->setEnabled(true);
 }
@@ -162,4 +189,6 @@ void ICMainWindow::mouseReleaseEvent(QMouseEvent *e)
 ICMainWindow::~ICMainWindow()
 {
     delete questionDialog;
+    delete server;
+    ICSystemStore::destroy();
 }

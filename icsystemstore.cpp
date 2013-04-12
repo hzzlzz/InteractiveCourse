@@ -68,7 +68,7 @@ const QList<ICAnswer> ICSystemStore::getCurrentAnswers()
     QMutexLocker locker(&objectMutex);
 
     return currentAnswers.values();
-    /*
+
     QMap<QString, int> result;
     QHash<QString, ICAnswer>::const_iterator i = currentAnswers.constBegin();
     while (i != currentAnswers.constEnd()) {

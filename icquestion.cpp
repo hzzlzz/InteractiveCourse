@@ -24,7 +24,8 @@ QJsonObject ICQuestion::saveAsJsonObject() const
     QJsonObject jo;
     jo.insert(idTag, QJsonValue(getId()));
     jo.insert(typeTag, QJsonValue(getType()));
-    jo.insert(choicesTag, QJsonValue(getChoices()));
+    if (!getChoices().isNull())
+        jo.insert(choicesTag, QJsonValue(getChoices()));
 
     return jo;
 }
