@@ -218,7 +218,7 @@ Stand</string>
      </layout>
     </item>
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,1">
+     <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,1,0">
       <item>
        <widget class="QPushButton" name="exitButton">
         <property name="sizePolicy">
@@ -264,6 +264,27 @@ Stand</string>
          </size>
         </property>
        </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="minimizeButton">
+        <property name="maximumSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>14</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>-</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>

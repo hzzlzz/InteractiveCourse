@@ -48,7 +48,7 @@ public slots:
     void processAnswer(ICAnswer answer, QString uid);
 
 private slots:
-    void socketClosed(QAbstractSocket::SocketState state);
+    void socketClosed(QAbstractSocket::SocketError);
 
     void stopSidTest();
 

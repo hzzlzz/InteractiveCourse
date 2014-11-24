@@ -16,8 +16,8 @@ class ICMessageHandler : public Handler
 public:
     ICMessageHandler(QObject *parent = 0);
 
-    void reset(const QList<QVariant>& paramList);
-    void done();
+    virtual void reset(const QList<QVariant>& paramList);
+    virtual void done();
     
 signals:
     // clientAddress requests a question

@@ -13,11 +13,6 @@
 ICServer::ICServer(QObject *parent) :
     QObject(parent), settings(new QSettings(CONFIG_FILE, QSettings::IniFormat, this))
 {
-
-    //connect(udpSocket,SIGNAL(connected()),this, SLOT(socketConnected()));
-    // no effect currently
-    //connect(udpSocket,SIGNAL(disconnected()),this, SLOT(socketClosed()));
-
     isRunning = false;
 }
 
@@ -66,9 +61,8 @@ void ICServer::stopSidTest()
 }
 
 // not in use
-void ICServer::socketClosed(QAbstractSocket::SocketState state)
+void ICServer::socketClosed(QAbstractSocket::SocketError)
 {
-    if (state == QAbstractSocket::ClosingState)
     emit connectionClosed();
 }
 
@@ -79,6 +73,7 @@ bool ICServer::listen()
 
     if (udpSocket->bind(ipAddress, SERVER_PORT)) {
         connect(udpSocket, SIGNAL(readyRead()), this, SLOT(processPendingDatagrams()));
+        //connect(udpSocket,SIGNAL(error(QAbstractSocket::SocketError)),this, SLOT(socketClosed(QAbstractSocket::SocketError)));
         isRunning = true;
         return true;
     } else return false;

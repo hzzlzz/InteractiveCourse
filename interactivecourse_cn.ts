@@ -45,22 +45,27 @@ Stand</source>
         <translation>10/112</translation>
     </message>
     <message utf8="true">
-        <location filename="icmainwindow.ui" line="250"/>
+        <location filename="icmainwindow.ui" line="251"/>
         <source>×</source>
         <translation>×</translation>
     </message>
     <message>
-        <location filename="icmainwindow.cpp" line="79"/>
+        <location filename="icmainwindow.ui" line="285"/>
+        <source>-</source>
+        <translation>-</translation>
+    </message>
+    <message>
+        <location filename="icmainwindow.cpp" line="116"/>
         <source>Result of Question %1</source>
         <translation>第%1题的统计结果</translation>
     </message>
     <message>
-        <location filename="icmainwindow.cpp" line="126"/>
+        <location filename="icmainwindow.cpp" line="163"/>
         <source>Error</source>
         <translation>出错啦</translation>
     </message>
     <message>
-        <location filename="icmainwindow.cpp" line="127"/>
+        <location filename="icmainwindow.cpp" line="164"/>
         <source>Connection failed.</source>
         <translation>连接失败。</translation>
     </message>
@@ -79,27 +84,27 @@ Stand</source>
         <translation>问题类型：</translation>
     </message>
     <message>
-        <location filename="icnewquestiondialog.ui" line="50"/>
+        <location filename="icnewquestiondialog.ui" line="63"/>
         <source>True Or False</source>
         <translation>判断题</translation>
     </message>
     <message>
-        <location filename="icnewquestiondialog.ui" line="60"/>
+        <location filename="icnewquestiondialog.ui" line="73"/>
         <source>Single Choice</source>
         <translation>单选题</translation>
     </message>
     <message>
-        <location filename="icnewquestiondialog.ui" line="73"/>
+        <location filename="icnewquestiondialog.ui" line="86"/>
         <source>Multiple Choice</source>
         <translation>多选题</translation>
     </message>
     <message>
-        <location filename="icnewquestiondialog.ui" line="117"/>
+        <location filename="icnewquestiondialog.ui" line="149"/>
         <source>Start</source>
         <translation>开始提问</translation>
     </message>
     <message>
-        <location filename="icnewquestiondialog.ui" line="124"/>
+        <location filename="icnewquestiondialog.ui" line="156"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
@@ -143,28 +148,32 @@ Stand</source>
 <context>
     <name>ICStartDialog</name>
     <message>
-        <location filename="icstartdialog.ui" line="14"/>
         <source>Start Up</source>
-        <translation>服务器初始化</translation>
+        <translation type="obsolete">服务器初始化</translation>
     </message>
     <message>
-        <location filename="icstartdialog.ui" line="25"/>
+        <location filename="icstartdialog.ui" line="17"/>
+        <source>Interactive Course</source>
+        <translation>互动课堂桌面版</translation>
+    </message>
+    <message>
+        <location filename="icstartdialog.ui" line="28"/>
         <source>Server Startup</source>
         <translation>新建服务器</translation>
     </message>
     <message>
-        <location filename="icstartdialog.ui" line="65"/>
+        <location filename="icstartdialog.ui" line="68"/>
         <source>&amp;Network Adapter:</source>
         <oldsource>Network Adapter:</oldsource>
         <translation>&amp;网络适配器：</translation>
     </message>
     <message>
-        <location filename="icstartdialog.ui" line="75"/>
+        <location filename="icstartdialog.ui" line="78"/>
         <source>&amp;Server Name:</source>
         <translation>&amp;服务器名称：</translation>
     </message>
     <message>
-        <location filename="icstartdialog.ui" line="159"/>
+        <location filename="icstartdialog.ui" line="162"/>
         <source>Start</source>
         <translation>新建</translation>
     </message>
@@ -177,44 +186,44 @@ Stand</source>
         <translation type="obsolete">新建课堂</translation>
     </message>
     <message>
-        <location filename="icstartdialog.ui" line="169"/>
+        <location filename="icstartdialog.ui" line="172"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="icstartdialog.cpp" line="40"/>
+        <location filename="icstartdialog.cpp" line="42"/>
         <source>No adapter found</source>
         <translation>没有发现任何网络适配器</translation>
     </message>
     <message>
-        <location filename="icstartdialog.cpp" line="69"/>
+        <location filename="icstartdialog.cpp" line="71"/>
         <source>checking uniqueness...</source>
         <translation>确认名字唯一性...</translation>
     </message>
     <message>
-        <location filename="icstartdialog.cpp" line="81"/>
-        <location filename="icstartdialog.cpp" line="114"/>
+        <location filename="icstartdialog.cpp" line="83"/>
+        <location filename="icstartdialog.cpp" line="116"/>
         <source>Error</source>
         <translation>出错啦</translation>
     </message>
     <message>
-        <location filename="icstartdialog.cpp" line="82"/>
+        <location filename="icstartdialog.cpp" line="84"/>
         <source>Testing port %1 occupied.</source>
         <translation>测试端口%1被占用。</translation>
     </message>
     <message>
-        <location filename="icstartdialog.cpp" line="100"/>
+        <location filename="icstartdialog.cpp" line="102"/>
         <source>Collision</source>
         <translation>名字冲突</translation>
     </message>
     <message>
-        <location filename="icstartdialog.cpp" line="101"/>
+        <location filename="icstartdialog.cpp" line="103"/>
         <source>Server identifier collision.
 Please change to another name.</source>
         <translation>课堂名称冲突，请选择另一个名字。</translation>
     </message>
     <message>
-        <location filename="icstartdialog.cpp" line="115"/>
+        <location filename="icstartdialog.cpp" line="117"/>
         <source>Port %1 occupied.</source>
         <translation>端口%1被占用。</translation>
     </message>
@@ -234,7 +243,7 @@ Please change to another name.</source>
     <message>
         <location filename="icansweranalyzer.cpp" line="13"/>
         <source>C.Is it edible?</source>
-        <translation>C.这能吃吗？</translation>
+        <translation>C.非常不懂</translation>
     </message>
     <message>
         <location filename="icansweranalyzer.cpp" line="16"/>

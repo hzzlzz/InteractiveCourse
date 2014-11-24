@@ -27,6 +27,8 @@ ICMainWindow::ICMainWindow(ICServer *theServer, QWidget *parent) :
     questionDialog->setWindowFlags(questionDialog->windowFlags() | Qt::FramelessWindowHint);
 
     connect(exitButton, SIGNAL(clicked()), this, SLOT(close()));
+    connect(minimizeButton, SIGNAL(clicked()), this, SLOT(showMinimized()));
+
     connect(understandButton, SIGNAL(clicked()), this, SLOT(understand()));
     connect(questionButton, SIGNAL(clicked()), this, SLOT(question()));
     connect(stopButton, SIGNAL(clicked()), this, SLOT(stop()));

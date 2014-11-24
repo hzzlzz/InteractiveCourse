@@ -11,8 +11,8 @@ class ICMessage : public Source
 {
 public:
     ICMessage();
-    QList<QString> getKeys() const;
-    QList<QVariant> getValueList(QString key) const;
+    virtual QList<QString> getKeys() const;
+    virtual QList<QVariant> getValueList(QString key) const;
 
     void setProperty(QString key, QString value);
     void setQuestions(QList<ICQuestion> theQuestions);

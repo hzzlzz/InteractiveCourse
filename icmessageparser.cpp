@@ -1,8 +1,8 @@
 #include "icmessageparser.h"
 #include "icmessagemapper.h"
-#include "handler.h"
+#include "icmessagehandler.h"
 
-ICMessageParser::ICMessageParser(ICMessageHandler *handler) : Parser((Handler*) handler)
+ICMessageParser::ICMessageParser(ICMessageHandler *handler) : Parser(handler)
 {
     ICMessageMapper mapper;
     addMapper(mapper);
